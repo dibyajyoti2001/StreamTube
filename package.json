@@ -1,0 +1,28 @@
+{
+  "name": "streamtube",
+  "version": "1.0.0",
+  "description": "A StreamTube backend that helps to build a VideoStreamingApplication in frontend using StreamTube backend API's",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongoose",
+    "backend"
+  ],
+  "author": "dibyajyoti sahoo",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.8.4"
+  }
+}
