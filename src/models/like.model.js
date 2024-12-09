@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
+// Like Schema
 const likeSchema = new Schema(
   {
     comment: {
