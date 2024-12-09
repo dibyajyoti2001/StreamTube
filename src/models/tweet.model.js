@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
+// Tweet Schema
 const tweetSchema = new Schema(
   {
     content: {
