@@ -18,6 +18,7 @@ app.use(
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
+app.use(cookieParser());
 
 // Logger Middleware
 app.use(
@@ -38,6 +39,7 @@ app.use(
 
 // routes import
 import healthCheckRouter from "./routes/healthCheck.route.js";
+import cookieParser from "cookie-parser";
 
 // routes declaration
 app.use("/api/v1/healthCheck", healthCheckRouter);
