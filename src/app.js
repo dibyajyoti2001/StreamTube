@@ -40,9 +40,11 @@ app.use(
 
 // Routes import
 import healthCheckRouter from "./routes/healthCheck.route.js";
+import userRouter from "./routes/user.route.js";
 
 // Routes declaration
 app.use("/api/v1/healthCheck", healthCheckRouter);
+app.use("/api/v1/users", userRouter);
 
 // how it will see: http://localhost:8000/api/v1/users/register
 
