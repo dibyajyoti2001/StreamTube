@@ -21,7 +21,7 @@ router.route("/register").post(
   ]),
   registerUser
 );
-router.route("/login").get(loginUser);
-router.route("/refreshToken").get(refreshAccessToken);
+router.route("/login").post(loginUser);
+router.route("/refreshToken").post(refreshAccessToken);
 
 export default router;
