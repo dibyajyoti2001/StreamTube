@@ -52,7 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Check the Images, Avatar are get from frontend or not
-  const avtarLocalPath = req.files?.avtar[0]?.path;
+  const avatarLocalPath = req.files?.avatar[0]?.path;
 
   let coverImageLocalPath;
 
@@ -64,12 +64,12 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImageLocalPath = req.files.coverImage[0].path;
   }
 
-  if (!avtarLocalPath) {
+  if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar must be required");
   }
 
   // Upload them to Cloudinary
-  const avatar = await uploadOnCloudinary(avtarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
