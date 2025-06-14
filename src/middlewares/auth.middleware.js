@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 const verifyJWT = asyncHandler(async (req, _, next) => {
   // Get token from the cookies
   const token =
-    req.cookies.accessToken ||
+    req.cookies?.accessToken ||
     req.header("Authorization")?.replace("Bearer ", "");
 
   // Validate it
@@ -16,7 +16,7 @@ const verifyJWT = asyncHandler(async (req, _, next) => {
 
   // Verify the token using jwt
   try {
-    const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     // Find the User using decodedToken & Validate it
     const user = await User.findById(decodedToken._id).select(
