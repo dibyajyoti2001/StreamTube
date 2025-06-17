@@ -2,7 +2,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -235,4 +238,151 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  // Get the user old & new password from frontend
+  const { password, newPassword } = req.body;
+
+  // Validate it
+  if (!password && !newPassword) {
+    throw new ApiError(400, "Invalid Credentials");
+  }
+
+  // Find the user
+  const user = await User.findById(req.user?._id);
+
+  // Check old password is correct or not
+  const isPasswordValid = await user.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(400, "Invalid password");
+  }
+
+  // Update the password & save it to DB
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  // Return response
+  return res
+    .status(201)
+    .json(new ApiResponse(200, {}, "Password Changed Successfully"));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(201)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  // Get the updated fields from users
+  const { fullname, email } = req.body;
+
+  // Validate it
+  if (!fullname && !email) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  // Find the user and update it
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullname,
+        email: email,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  // Return res
+  return res.status(201).json(200, user, "Account updated Successfully");
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  // Get the avatar from users
+  const avatarLocalPath = req.file?.path;
+
+  // Validate it
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar is required");
+  }
+
+  // Upload it on cloudinary
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+  // Validate if it's upload or not
+  if (!avatar?.url) {
+    throw new ApiError(500, "Something went wrong while uploading avatar");
+  }
+
+  // Update the avatar
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { avatar: avatar?.url } },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  if (!user) {
+    throw new ApiError(400, "User not found");
+  }
+
+  // Return response
+  return res
+    .status(201)
+    .json(new ApiResponse(200, user, "Avatar updated successfully"));
+});
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  // Get the user cover image
+  const coverImageLocalPath = req.file?.path;
+
+  // Validate it
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "CoverImage not found");
+  }
+
+  // Upload it on cloudinary
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  if (!coverImage?.url) {
+    throw new ApiError(400, "Invalid cover image");
+  }
+
+  // Retrive the cover image from the user document
+  const user = await User.findById(req.user?.id).select("coverImage");
+
+  // Update cover image on database
+  const updateUser = await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { coverImage: coverImage.url } },
+    { new: true }
+  ).select("-password");
+
+  // Delete the old cover image from cloudinary
+  if (user.coverImage) {
+    const publicId = user.coverImage.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
+  return res
+    .status(201)
+    .json(
+      new ApiResponse(
+        200,
+        { user: updateUser },
+        "Cover image updated successfully"
+      )
+    );
+});
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+};
