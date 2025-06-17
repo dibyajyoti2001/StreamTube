@@ -295,7 +295,9 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   ).select("-password -refreshToken");
 
   // Return res
-  return res.status(201).json(200, user, "Account updated Successfully");
+  return res
+    .status(201)
+    .json(new ApiResponse(200, user, "Account updated Successfully"));
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
