@@ -364,6 +364,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     await deleteFromCloudinary(publicId);
   }
 
+  // Return response
   return res
     .status(201)
     .json(
