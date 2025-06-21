@@ -328,6 +328,12 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User not found");
   }
 
+  // Delete the old avatar from cloudinary
+  if (user.avatar) {
+    const publicId = user.avatar.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
   // Return response
   return res
     .status(201)
